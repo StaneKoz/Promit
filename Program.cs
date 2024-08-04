@@ -7,11 +7,21 @@ namespace Promit
     {
         public static async Task Main(string[] args)
         {
-            var filePath = args[0];
+            string filePath = "";
+            if (args.Length == 0)
+            {
+                Console.WriteLine("Не былы переданы аргументы командной строки, поэтому введите путь к файлу:");
+                filePath = Console.ReadLine() ?? "";
+            }
+            else
+            {
+                filePath = args[0];
+            }
+
             var file = await File.ReadAllTextAsync(filePath);
-            var filterWords = ValidateWords(file);
+            var filteredWords = ValidateWords(file);
             await InitializeDatabase();
-            await UpdateTable(filterWords);
+            await UpdateTable(filteredWords);
         }
 
         private static async Task UpdateRecord(KeyValuePair<string, int> record, SqlConnection connection)
@@ -40,7 +50,7 @@ namespace Promit
             }
         }
 
-        private static async Task UpdateTable(Dictionary<string, int> filterWords)
+        private static async Task UpdateTable(Dictionary<string, int> filteredWords)
         {
 
             var connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
@@ -49,7 +59,7 @@ namespace Promit
             {
                 await connection.OpenAsync();
 
-                foreach (var word in filterWords)
+                foreach (var word in filteredWords)
                 {
                     var checkQuery = "SELECT COUNT(*) FROM words WHERE word = @word";
 
