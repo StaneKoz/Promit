@@ -53,7 +53,7 @@ namespace Promit
         private static async Task UpdateTable(Dictionary<string, int> filteredWords)
         {
 
-            var connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+            var connectionString = ConfigurationManager.ConnectionStrings["PromitConnection"].ConnectionString;
 
             using (var connection = new SqlConnection(connectionString))
             {
@@ -93,17 +93,24 @@ namespace Promit
             await commandCreateDb.ExecuteNonQueryAsync();
         }
 
-        private static async Task CreateTableIfNotExists(SqlConnection connection)
+        private static async Task CreateTableIfNotExists()
         {
-            var sqlCommandText = @"IF OBJECT_ID(N'dbo.words', N'U') IS NULL
+            var connectionString = ConfigurationManager.ConnectionStrings["PromitConnection"].ConnectionString;
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+
+                var sqlCommandText = @"IF OBJECT_ID(N'dbo.words', N'U') IS NULL
                 CREATE TABLE dbo.words (
                  id INT PRIMARY KEY IDENTITY,
                  word nvarchar(20) NOT NULL,
                  count INT NOT NULL);";
 
-            var commandCreateTable = new SqlCommand(sqlCommandText, connection);
+                var commandCreateTable = new SqlCommand(sqlCommandText, connection);
 
-            await commandCreateTable.ExecuteNonQueryAsync();
+                await commandCreateTable.ExecuteNonQueryAsync();
+            }
         }
 
         private static async Task InitializeDatabase()
@@ -114,7 +121,7 @@ namespace Promit
             {
                 await connection.OpenAsync();
                 await CreateDbIfNotExists(connection);
-                await CreateTableIfNotExists(connection);
+                await CreateTableIfNotExists();
             }
         }
 
