@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Promit": {
+      "commandName": "Project",
+      "commandLineArgs": "D:\\exampleFile.txt"
+    }
+  }
+}
